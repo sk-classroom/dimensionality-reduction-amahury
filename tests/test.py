@@ -63,7 +63,7 @@ class TestAdversarialExample(unittest.TestCase):
 
         dataset = AdversarialExamples()
 
-        min_score = 0.5
+        min_score = 0.6
 
         for i in range(10):
             X, y = dataset.pca_adversarial_data(
