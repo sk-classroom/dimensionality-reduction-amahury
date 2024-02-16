@@ -1,7 +1,8 @@
 # %%
 import numpy as np
+from scipy import sparse
+from sklearn.datasets import make_blobs
 from typing import Any
-
 
 # TODO: implement the PCA with numpy
 # Note that you are not allowed to use any existing PCA implementation from sklearn or other libraries.
