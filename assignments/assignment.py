@@ -34,7 +34,13 @@ class PrincipalComponentAnalysis:
         self : object
             Returns the instance itself.
         """
-        pass
+        self.mean = X.mean(axis=0)
+        Xc = X - self.mean
+        Cov = Xc.T @ Xc / (Xc.shape[0] - 1)
+        w, self.components = np.linalg.eig(Cov)
+        order = np.argsort(-w)[:self.n_components]
+        w, self.components = w[order], self.components[:, order]
+        return self
 
     def transform(self, X: np.ndarray) -> np.ndarray:
         """
@@ -53,7 +59,9 @@ class PrincipalComponentAnalysis:
         X_new : ndarray of shape (n_samples, n_components)
             Transformed values.
         """
-        pass
+        Xc = X - self.mean
+        X_new = Xc @ self.components
+        return X_new
 
 
 # TODO: implement the LDA with numpy
@@ -91,7 +99,21 @@ class LinearDiscriminantAnalysis:
         5. Sort the eigenvectors by decreasing eigenvalues and choose k eigenvectors with the largest eigenvalues to form a d×k dimensional matrix W.
         6. Use this d×k eigenvector matrix to transform the samples onto the new subspace.
         """
-        pass
+        ylab = np.unique(y)
+        Sw = np.zeros((X.shape[1], X.shape[1]))  # Within class covariance
+        Sb = np.zeros((X.shape[1], X.shape[1]))  # Between class covariance
+        for yc in ylab:
+            Xclass = X[y == yc]
+            Sw += np.cov(Xclass.T)
+            
+        self.mean = X.mean(axis=0)
+        for i, yc in enumerate(ylab):
+            Xclass = X[y == yc]
+            mc = Xclass.mean(axis=0)
+            Sb += Xclass.shape[1] * (mc - self.mean) @ (mc - self.mean).T 
+            
+        w, self.components = sparse.linalg.eigs(Sb, M=Sw, k=self.n_components, which="LM")
+        return self
 
     def transform(self, X: np.ndarray) -> np.ndarray:
         """
@@ -110,7 +132,9 @@ class LinearDiscriminantAnalysis:
         X_new : ndarray of shape (n_samples, n_components)
             Transformed values.
         """
-        pass
+        Xc = X - self.mean
+        X_new = Xc @ self.components
+        return X_new
 
 
 # TODO: Generating adversarial examples for PCA.
@@ -145,4 +169,5 @@ class AdversarialExamples:
             Cluster IDs. y[i] is the cluster ID of the i-th sample.
 
         """
-        pass
+        X, y =  make_blobs(n_samples=n_samples, n_features=n_features, centers=5, random_state=42, center_box = (-5, 5), cluster_std = 0.5)
+        return X, y
